@@ -139,17 +139,27 @@ class Range
     return enum_for(:step, n) unless block_given?
     raise ArgumentError.new("step can't be negative") if n < 0
     raise ArgumentError.new("step can't be 0") unless n > 0
-    i = 0
-    loop do
-      current = @begin + i * n
-      if @exclude
-        break if current >= @end
-      else
-        break if current > @end
+    if @begin.is_a?(Numeric) and @end.is_a?(Numeric)
+      i = 0
+      loop do
+        current = @begin + i * n
+        if @exclude
+          break if current >= @end
+        else
+          break if current > @end
+        end
+        yield(current)
+        i += 1
       end
-      yield(current)
-      i += 1
+    else
+      raise TypeError, "step must be an integer" unless n.is_a?(Numeric) && n.to_int == n
+      i = 0
+      each do |value|
+        yield(value) if i % n == 0
+        i += 1
+      end
     end
+    self
   end
 
   def bsearch
