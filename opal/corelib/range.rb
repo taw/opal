@@ -62,7 +62,7 @@ class Range
     current = @begin
     last    = @end
 
-    while current < last
+    while (current <=> last) < 0
       yield current
 
       current = current.succ
@@ -85,11 +85,17 @@ class Range
     @exclude
   end
 
-  alias :first :begin
+  def first(n=(n_specified=true; nil))
+    return @begin if n_specified
+    super
+  end
 
   alias :include? :cover?
 
-  alias :last :end
+  def last(n=(n_specified=true; nil))
+    return @end if n_specified
+    to_a.last(n)
+  end
 
   # FIXME: currently hardcoded to assume range holds numerics
   def max
