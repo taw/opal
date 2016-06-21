@@ -130,10 +130,12 @@ class Range
   end
 
   def to_s
-    `#{@begin.inspect} + (#@exclude ? '...' : '..') + #{@end.inspect}`
+    "#{@begin}#{ @exclude ? '...' : '..' }#{@end}"
   end
 
-  alias inspect to_s
+  def inspect
+    "#{@begin.inspect}#{ @exclude ? '...' : '..' }#{@end.inspect}"
+  end
 
   def marshal_load(args)
     @begin = args[:begin]

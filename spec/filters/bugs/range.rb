@@ -135,5 +135,4 @@ opal_filter "Range" do
   fails "Range#step with inclusive end and String values raises a TypeError when passed a Float step"
   fails "Range#step with inclusive end and String values yields String values incremented by #succ and less than or equal to end when not passed a step"
   fails "Range#step with inclusive end and String values yields String values incremented by #succ called Integer step times"
-  fails "Range#to_s provides a printable form of self"
 end
