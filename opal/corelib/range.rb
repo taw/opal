@@ -129,6 +129,14 @@ class Range
     raise NotImplementedError
   end
 
+  def bsearch
+    return enum_for(:bsearch) unless block_given?
+    unless @begin.is_a?(Numeric) && @end.is_a?(Numeric)
+      raise TypeError.new("can't do binary search for #{@begin.class}")
+    end
+    raise NotImplementedError
+  end
+
   def to_s
     "#{@begin}#{ @exclude ? '...' : '..' }#{@end}"
   end

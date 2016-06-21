@@ -1,10 +1,6 @@
 opal_filter "Range" do
-  fails "Range#bsearch raises a TypeError if the Range has Object values"
-  fails "Range#bsearch raises a TypeError if the Range has String values"
   fails "Range#bsearch raises a TypeError if the block returns a String"
   fails "Range#bsearch raises a TypeError if the block returns an Object"
-  fails "Range#bsearch returns an Enumerator when not passed a block"
-  fails "Range#bsearch when no block is given returned Enumerator size returns nil"
   fails "Range#bsearch with Float values with a block returning negative, zero, positive numbers accepts (+/-)Float::INFINITY from the block"
   fails "Range#bsearch with Float values with a block returning negative, zero, positive numbers returns an element at an index for which block returns 0"
   fails "Range#bsearch with Float values with a block returning negative, zero, positive numbers returns an element at an index for which block returns 0.0"
