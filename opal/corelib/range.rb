@@ -105,6 +105,10 @@ class Range
   def min
     if block_given?
       super
+    elsif @begin > @end
+      nil
+    elsif @exclude && @begin == @end
+      nil
     else
       @begin
     end
