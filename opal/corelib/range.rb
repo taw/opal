@@ -162,12 +162,12 @@ class Range
     self
   end
 
-  def bsearch
+  def bsearch(&block)
     return enum_for(:bsearch) unless block_given?
     unless @begin.is_a?(Numeric) && @end.is_a?(Numeric)
       raise TypeError.new("can't do binary search for #{@begin.class}")
     end
-    raise NotImplementedError
+    to_a.bsearch(&block)
   end
 
   def to_s
