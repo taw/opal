@@ -52,10 +52,7 @@ opal_filter "Range" do
   fails "Range#include? with weird succ when excluded end value returns false if other is not matched by element.succ"
   fails "Range#include? with weird succ when included end value returns false if other is equal as last element but not matched by element.succ"
   fails "Range#include? with weird succ when included end value returns false if other is not matched by element.succ"
-  fails "Range#initialize is private"
   fails "Range#initialize raises a NameError if called on an already initialized Range"
-  fails "Range#inspect returns a tainted string if either end is tainted"
-  fails "Range#inspect returns a untrusted string if either end is untrusted"
   fails "Range#last calls #to_int to convert the argument"
   fails "Range#last raises a TypeError if #to_int does not return an Integer"
   fails "Range#last raises a TypeError when passed a String"
@@ -139,6 +136,4 @@ opal_filter "Range" do
   fails "Range#step with inclusive end and String values yields String values incremented by #succ and less than or equal to end when not passed a step"
   fails "Range#step with inclusive end and String values yields String values incremented by #succ called Integer step times"
   fails "Range#to_s provides a printable form of self"
-  fails "Range#to_s returns a tainted string if either end is tainted"
-  fails "Range#to_s returns a untrusted string if either end is untrusted"
 end
