@@ -8,6 +8,7 @@ class Range
   attr_reader :begin, :end
 
   def initialize(first, last, exclude = false)
+    raise NameError, "initialize' called twice" if @begin
     raise ArgumentError unless first <=> last
 
     @begin   = first
@@ -32,7 +33,14 @@ class Range
   end
 
   def cover?(value)
-    @begin <= value && (@exclude ? value < @end : value <= @end)
+    beg_cmp = (@begin <=> value)
+    return false unless beg_cmp && beg_cmp <= 0
+    end_cmp = (value <=> @end)
+    if @exclude
+      end_cmp && end_cmp < 0
+    else
+      end_cmp && end_cmp <= 0
+    end
   end
 
   def each(&block)
@@ -101,6 +109,10 @@ class Range
   def max
     if block_given?
       super
+    elsif @begin > @end
+      nil
+    elsif @exclude && @begin == @end
+      nil
     else
       `#@exclude ? #@end - 1 : #@end`
     end
@@ -119,8 +131,6 @@ class Range
       @begin
     end
   end
-
-  alias member? include?
 
   def size
     _begin = @begin
@@ -182,5 +192,9 @@ class Range
     @begin = args[:begin]
     @end = args[:end]
     @exclude = args[:excl]
+  end
+
+  def hash
+    [@begin, @end, @exclude].hash
   end
 end
