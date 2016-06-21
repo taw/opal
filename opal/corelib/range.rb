@@ -147,8 +147,8 @@ class Range
 
   def step(n = 1)
     return enum_for(:step, n) unless block_given?
-    raise ArgumentError.new("step can't be negative") if n < 0
-    raise ArgumentError.new("step can't be 0") unless n > 0
+    raise ArgumentError, "step can't be negative" if n < 0
+    raise ArgumentError, "step can't be 0" unless n > 0
     if @begin.is_a?(Numeric) and @end.is_a?(Numeric)
       i = 0
       loop do
@@ -175,7 +175,7 @@ class Range
   def bsearch(&block)
     return enum_for(:bsearch) unless block_given?
     unless @begin.is_a?(Numeric) && @end.is_a?(Numeric)
-      raise TypeError.new("can't do binary search for #{@begin.class}")
+      raise TypeError, "can't do binary search for #{@begin.class}"
     end
     to_a.bsearch(&block)
   end
