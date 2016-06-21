@@ -126,7 +126,20 @@ class Range
   end
 
   def step(n = 1)
-    raise NotImplementedError
+    return enum_for(:step, n) unless block_given?
+    raise ArgumentError.new("step can't be negative") if n < 0
+    raise ArgumentError.new("step can't be 0") unless n > 0
+    i = 0
+    loop do
+      current = @begin + i * n
+      if @exclude
+        break if current >= @end
+      else
+        break if current > @end
+      end
+      yield(current)
+      i += 1
+    end
   end
 
   def bsearch
