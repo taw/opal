@@ -93,15 +93,15 @@ class Range
     @exclude
   end
 
-  def first(n=(n_specified=true; nil))
-    return @begin if n_specified
+  def first(n=undefined)
+    return @begin if `n === undefined`
     super
   end
 
   alias :include? :cover?
 
-  def last(n=(n_specified=true; nil))
-    return @end if n_specified
+  def last(n=undefined)
+    return @end if `n === undefined`
     to_a.last(n)
   end
 
@@ -162,7 +162,7 @@ class Range
         i += 1
       end
     else
-      raise TypeError, "step must be an integer" unless n.is_a?(Numeric) && n.to_int == n
+      n = Opal.coerce_to(n, Integer, :to_int)
       i = 0
       each do |value|
         yield(value) if i % n == 0
