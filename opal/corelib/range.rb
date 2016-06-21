@@ -8,8 +8,8 @@ class Range
   attr_reader :begin, :end
 
   def initialize(first, last, exclude = false)
-    raise NameError, "initialize' called twice" if @begin
-    raise ArgumentError unless first <=> last
+    raise NameError, "'initialize' called twice" if @begin
+    raise ArgumentError, "bad value for range" unless first <=> last
 
     @begin   = first
     @end     = last
@@ -70,6 +70,10 @@ class Range
     current = @begin
     last    = @end
 
+    unless current.respond_to?(:succ)
+      raise TypeError, "can't iterate from #{current.class}"
+    end
+
     while (current <=> last) < 0
       yield current
 
@@ -93,15 +97,15 @@ class Range
     @exclude
   end
 
-  def first(n=undefined)
-    return @begin if `n === undefined`
+  def first(n = undefined)
+    return @begin if `n == null`
     super
   end
 
   alias :include? :cover?
 
-  def last(n=undefined)
-    return @end if `n === undefined`
+  def last(n = undefined)
+    return @end if `n == null`
     to_a.last(n)
   end
 
@@ -146,10 +150,68 @@ class Range
   end
 
   def step(n = 1)
-    return enum_for(:step, n) unless block_given?
-    raise ArgumentError, "step can't be negative" if n < 0
-    raise ArgumentError, "step can't be 0" unless n > 0
-    if @begin.is_a?(Numeric) and @end.is_a?(Numeric)
+    %x{
+      function coerceStepSize() {
+        if (!n.$$is_number) {
+          n = #{Opal.coerce_to!(n, Integer, :to_int)}
+        }
+
+        if (n < 0) {
+          #{raise ArgumentError, "step can't be negative"}
+        } else if (n === 0) {
+          #{raise ArgumentError, "step can't be 0"}
+        }
+      }
+
+      function enumeratorSize() {
+        if (!#{@begin.respond_to?(:succ)}) {
+          return nil;
+        }
+
+        if (#{@begin}.$$is_string && #{@end}.$$is_string) {
+          return nil;
+        }
+
+        if (n % 1 === 0) {
+          return #{(size / n).ceil};
+        } else {
+          // n is a float
+          var begin = self.begin, end = self.end,
+              abs = Math.abs, floor = Math.floor,
+              err = (abs(begin) + abs(end) + abs(end - begin)) / abs(n) * #{Float::EPSILON},
+              size;
+
+          if (err > 0.5) {
+            err = 0.5;
+          }
+
+          if (self.exclude) {
+            size = floor((end - begin) / n - err);
+            if (size * n + begin < end) {
+              size++;
+            }
+          } else {
+            size = floor((end - begin) / n + err) + 1
+          }
+
+          return size;
+        }
+      }
+    }
+
+
+    unless block_given?
+      return enum_for(:step, n) {
+        %x{
+          coerceStepSize();
+          return enumeratorSize();
+        }
+      }
+    end
+
+    `coerceStepSize()`
+
+    if `self.begin.$$is_number && self.end.$$is_number`
       i = 0
       loop do
         current = @begin + i * n
@@ -162,11 +224,13 @@ class Range
         i += 1
       end
     else
-      n = Opal.coerce_to(n, Integer, :to_int)
-      i = 0
-      each do |value|
-        yield(value) if i % n == 0
-        i += 1
+      %x{
+        if (#{@begin}.$$is_string && #{@end}.$$is_string && n % 1 !== 0) {
+          #{raise TypeError, "no implicit conversion to float from string"}
+        }
+      }
+      each_with_index do |value, idx|
+        yield(value) if idx % n == 0
       end
     end
     self
@@ -174,9 +238,11 @@ class Range
 
   def bsearch(&block)
     return enum_for(:bsearch) unless block_given?
-    unless @begin.is_a?(Numeric) && @end.is_a?(Numeric)
+
+    unless `self.begin.$$is_number && self.end.$$is_number`
       raise TypeError, "can't do binary search for #{@begin.class}"
     end
+
     to_a.bsearch(&block)
   end
 
